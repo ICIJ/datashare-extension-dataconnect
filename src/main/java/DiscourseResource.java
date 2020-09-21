@@ -9,11 +9,15 @@ import java.net.URL;
 import net.codestory.http.Context;
 import net.codestory.http.Query;
 import net.codestory.http.annotations.Get;
+import net.codestory.http.annotations.Post;
 import net.codestory.http.annotations.Prefix;
 import net.codestory.http.payload.Payload;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.icij.datashare.PropertiesProvider;
 
@@ -34,11 +38,26 @@ public class DiscourseResource {
     @Get("/:path:")
     public Payload getMethod(String path, Context context) throws IOException {
         HttpGet httpUriRequest = new HttpGet(discourseUrl.toString() + "/" + checkPath(path, context));
+        prepareRequest(httpUriRequest);
+        HttpResponse response = httpClient.execute(httpUriRequest);
+        return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
+    }
+
+    @Post("/:path:")
+    public Payload postMethod(String path, Context context) throws IOException {
+        HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/" + checkPath(path, context));
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setContent(context.request().inputStream());
+        httpUriRequest.setEntity(entity);
+        prepareRequest(httpUriRequest);
+        HttpResponse response = httpClient.execute(httpUriRequest);
+        return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
+    }
+
+    private void prepareRequest(HttpUriRequest httpUriRequest) {
         httpUriRequest.addHeader("Api-Key", discourseApiKey);
         httpUriRequest.addHeader("Api-Username", discourseApiUser);
         httpUriRequest.addHeader("Content-Type", "application/json");
-        HttpResponse response = httpClient.execute(httpUriRequest);
-        return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
     }
 
     private String checkPath(String path, Context context) {
