@@ -1,16 +1,13 @@
-import static java.lang.String.join;
-import static java.util.stream.Collectors.toList;
-
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import net.codestory.http.Context;
-import net.codestory.http.Query;
 import net.codestory.http.annotations.Get;
 import net.codestory.http.annotations.Post;
 import net.codestory.http.annotations.Prefix;
+import net.codestory.http.errors.UnauthorizedException;
 import net.codestory.http.payload.Payload;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,8 +17,9 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.icij.datashare.PropertiesProvider;
+import org.icij.datashare.user.User;
 
-@Prefix("discourse")
+@Prefix("comments")
 public class DiscourseResource {
     private final HttpClient httpClient;
     private final URL discourseUrl;
@@ -35,17 +33,17 @@ public class DiscourseResource {
         discourseApiUser = propertiesProvider.get("discourseApiUser").orElseThrow(() -> new RuntimeException("no discourse api user found in settings"));
     }
 
-    @Get("/:path:")
-    public Payload getMethod(String path, Context context) throws IOException {
-        HttpGet httpUriRequest = new HttpGet(discourseUrl.toString() + "/" + checkPath(path, context));
+    @Get("/:project/:docId/all")
+    public Payload getMethod(String project, String docId, Context context) throws IOException {
+        HttpGet httpUriRequest = new HttpGet(discourseUrl.toString() + "/" + getDiscoursePath(project, docId, context));
         prepareRequest(httpUriRequest);
         HttpResponse response = httpClient.execute(httpUriRequest);
         return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
     }
 
-    @Post("/:path:")
-    public Payload postMethod(String path, Context context) throws IOException {
-        HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/" + checkPath(path, context));
+    @Post("/:project/:docId/all")
+    public Payload postMethod(String project, String docId, Context context) throws IOException {
+        HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/" + getDiscoursePath(project, docId, context));
         BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContent(context.request().inputStream());
         httpUriRequest.setEntity(entity);
@@ -60,19 +58,10 @@ public class DiscourseResource {
         httpUriRequest.addHeader("Content-Type", "application/json");
     }
 
-    private String checkPath(String path, Context context) {
-        //(DatashareUser)context.currentUser()).isGranted(index)
-        return getUrlString(context, path);
+    private String getDiscoursePath(String project, String docId, Context context) {
+        if (!((User)context.currentUser()).isGranted(project)) {
+            throw new UnauthorizedException();
+        }
+        return "t/this-is-a-new-topic/11.json";
     }
-
-     private String getUrlString(Context context, String s) {
-         if (context.query().keyValues().size() > 0) {
-             s += "?" + getQueryAsString(context.query());
-         }
-         return s;
-     }
-
-     static String getQueryAsString(final Query query) {
-         return join("&", query.keyValues().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(toList()));
-     }
 }
