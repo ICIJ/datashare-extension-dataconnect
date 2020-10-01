@@ -62,6 +62,6 @@ public class DiscourseResource {
         if (!((User)context.currentUser()).isGranted(project)) {
             throw new UnauthorizedException();
         }
-        return "t/this-is-a-new-topic/11.json";
+        return "t/hello-world-topic/11.json";
     }
 }
