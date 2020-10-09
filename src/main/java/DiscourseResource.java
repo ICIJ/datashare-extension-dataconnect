@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,7 +34,7 @@ import org.icij.datashare.user.User;
 
 @Prefix("comments")
 public class DiscourseResource {
-    Pattern extractTopicId = Pattern.compile(".*\"id\":(\\d+).*");
+    static Pattern extractTopicId = Pattern.compile(".*,\"topic_id\":(\\d+),.*");
     private final HttpClient httpClient;
     private final URL discourseUrl;
     private final String discourseApiUser;
@@ -64,34 +65,37 @@ public class DiscourseResource {
             HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/posts.json");
             BasicHttpEntity entity = new BasicHttpEntity();
             entity.setContentType(new BasicHeader("Content-Type","application/json"));
-            entity.setContent(new ByteArrayInputStream(new ObjectMapper().writeValueAsString(comment).getBytes()));
+            String json = new ObjectMapper().writeValueAsString(comment);
+            entity.setContent(new ByteArrayInputStream(json.getBytes()));
             httpUriRequest.setEntity(entity);
             prepareRequest(httpUriRequest);
+            entity.setContentLength(json.length());
             HttpResponse response = httpClient.execute(httpUriRequest);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             IOUtils.copy(response.getEntity().getContent(), output);
             String topicPayload = output.toString();
-            System.out.println("***********" + topicPayload);
 
             // 2.1 then add a custom field for the topic
-            String topicId = extractTopicId.matcher(topicPayload).group(1);
-            System.out.println("$$$$$$$$$$ " + topicId);
-            HttpPut httpCustomField = new HttpPut(discourseUrl.toString() + getDiscoursePath(project, topicId, context));
-            BasicHttpEntity entityForPut = new BasicHttpEntity();
-            entityForPut.setContentType(new BasicHeader("Content-Type","application/json"));
-            entityForPut.setContent(new ByteArrayInputStream(format("{\"datashare_document_id\": \"%s\"}", docId).getBytes()));
-            httpCustomField.setEntity(entityForPut);
-            prepareRequest(httpCustomField);
-            HttpResponse putResponse = httpClient.execute(httpCustomField);
-            return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
+            Matcher matcher = extractTopicId.matcher(topicPayload);
+            if (matcher.matches()) {
+                String topicId = matcher.group(1);
+                HttpPut httpCustomField = new HttpPut(discourseUrl.toString() + getDiscoursePath(project, topicId, context));
+                BasicHttpEntity entityForPut = new BasicHttpEntity();
+                entityForPut.setContentType(new BasicHeader("Content-Type","application/json"));
+                String body = format("{\"datashare_document_id\": \"%s\"}", docId);
+                entityForPut.setContent(new ByteArrayInputStream(body.getBytes()));
+                entityForPut.setContentLength(body.length());
+                httpCustomField.setEntity(entityForPut);
+                prepareRequest(httpCustomField);
+                HttpResponse putResponse = httpClient.execute(httpCustomField);
+                return new Payload(putResponse.getFirstHeader("Content-Type").toString(), putResponse.getEntity().getContent(), putResponse.getStatusLine().getStatusCode());
+            } else {
+                throw new IllegalStateException("cannot find topic id");
+            }
         } else {
             // 3 if the topic exists then add a new reply
+            return Payload.ok();
         }
-
-        HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/" + getDiscoursePath(project, docId, context));
-        prepareRequest(httpUriRequest);
-        HttpResponse response = httpClient.execute(httpUriRequest);
-        return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
     }
 
     @Post("/:project/:docId/all")
@@ -126,5 +130,12 @@ public class DiscourseResource {
             this.raw = raw;
             this.title = title;
         }
+    }
+
+    public static void main(String[] args) {
+        String json = "{\"id\":21,\"name\":null,\"username\":\"bthomas\",\"avatar_template\":\"/letter_avatar_proxy/v4/letter/b/ad7895/{size}.png\",\"created_at\":\"2020-10-09T14:04:56.954Z\",\"cooked\":\"\\u003cp\\u003ethis a good way to know what you want to do in life\\u003c/p\\u003e\",\"post_number\":1,\"post_type\":1,\"updated_at\":\"2020-10-09T14:04:56.954Z\",\"reply_count\":0,\"reply_to_post_number\":null,\"quote_count\":0,\"incoming_link_count\":0,\"reads\":0,\"readers_count\":0,\"score\":0,\"yours\":true,\"topic_id\":17,\"topic_slug\":\"datashare-document-number-a69983\",\"display_username\":null,\"primary_group_name\":null,\"primary_group_flair_url\":null,\"primary_group_flair_bg_color\":null,\"primary_group_flair_color\":null,\"version\":1,\"can_edit\":true,\"can_delete\":false,\"can_recover\":false,\"can_wiki\":true,\"user_title\":null,\"actions_summary\":[{\"id\":3,\"can_act\":true},{\"id\":4,\"can_act\":true},{\"id\":8,\"can_act\":true},{\"id\":7,\"can_act\":true}],\"moderator\":false,\"admin\":true,\"staff\":true,\"user_id\":1,\"draft_sequence\":0,\"hidden\":false,\"trust_level\":1,\"deleted_at\":null,\"user_deleted\":false,\"edit_reason\":null,\"can_view_edit_history\":true,\"wiki\":false,\"reviewable_id\":null,\"reviewable_score_count\":0,\"reviewable_score_pending_count\":0}";
+        Matcher matcher = extractTopicId.matcher(json);
+        System.out.println(matcher.matches());
+        System.out.println(matcher.group(1));
     }
 }
