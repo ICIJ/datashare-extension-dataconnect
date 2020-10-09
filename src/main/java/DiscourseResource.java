@@ -131,11 +131,4 @@ public class DiscourseResource {
             this.title = title;
         }
     }
-
-    public static void main(String[] args) {
-        String json = "{\"id\":21,\"name\":null,\"username\":\"bthomas\",\"avatar_template\":\"/letter_avatar_proxy/v4/letter/b/ad7895/{size}.png\",\"created_at\":\"2020-10-09T14:04:56.954Z\",\"cooked\":\"\\u003cp\\u003ethis a good way to know what you want to do in life\\u003c/p\\u003e\",\"post_number\":1,\"post_type\":1,\"updated_at\":\"2020-10-09T14:04:56.954Z\",\"reply_count\":0,\"reply_to_post_number\":null,\"quote_count\":0,\"incoming_link_count\":0,\"reads\":0,\"readers_count\":0,\"score\":0,\"yours\":true,\"topic_id\":17,\"topic_slug\":\"datashare-document-number-a69983\",\"display_username\":null,\"primary_group_name\":null,\"primary_group_flair_url\":null,\"primary_group_flair_bg_color\":null,\"primary_group_flair_color\":null,\"version\":1,\"can_edit\":true,\"can_delete\":false,\"can_recover\":false,\"can_wiki\":true,\"user_title\":null,\"actions_summary\":[{\"id\":3,\"can_act\":true},{\"id\":4,\"can_act\":true},{\"id\":8,\"can_act\":true},{\"id\":7,\"can_act\":true}],\"moderator\":false,\"admin\":true,\"staff\":true,\"user_id\":1,\"draft_sequence\":0,\"hidden\":false,\"trust_level\":1,\"deleted_at\":null,\"user_deleted\":false,\"edit_reason\":null,\"can_view_edit_history\":true,\"wiki\":false,\"reviewable_id\":null,\"reviewable_score_count\":0,\"reviewable_score_pending_count\":0}";
-        Matcher matcher = extractTopicId.matcher(json);
-        System.out.println(matcher.matches());
-        System.out.println(matcher.group(1));
-    }
 }
