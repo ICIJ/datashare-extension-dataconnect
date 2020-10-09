@@ -49,9 +49,7 @@ public class DiscourseResource {
 
     @Get("/:project/:docId/all")
     public Payload getMethod(String project, String docId, Context context) throws IOException {
-        HttpGet httpUriRequest = new HttpGet(discourseUrl.toString() + "/" + getDiscoursePath(project, docId, context));
-        prepareRequest(httpUriRequest);
-        HttpResponse response = httpClient.execute(httpUriRequest);
+        HttpResponse response = getTopicPosts(project, docId, context);
         return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
     }
 
@@ -59,8 +57,8 @@ public class DiscourseResource {
     public Payload create(String project, String docId, Context context) throws IOException {
         CommentAndTitle comment = context.extract(CommentAndTitle.class);
         // 1 get the topic of the document if it exists
-        Payload topicAndPostsPayload = getMethod(project, docId, context);
-        if (topicAndPostsPayload.isError()) {
+        HttpResponse topicAndPostsPayload = getTopicPosts(project, docId, context);
+        if (topicAndPostsPayload.getStatusLine().getStatusCode() == 404) {
             // 2 if it doesn't exist create a topic with the comment
             HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/posts.json");
             BasicHttpEntity entity = new BasicHttpEntity();
@@ -92,9 +90,29 @@ public class DiscourseResource {
             } else {
                 throw new IllegalStateException("cannot find topic id");
             }
-        } else {
+        } else if (topicAndPostsPayload.getStatusLine().getStatusCode() == 200) {
             // 3 if the topic exists then add a new reply
-            return Payload.ok();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            IOUtils.copy(topicAndPostsPayload.getEntity().getContent(), output);
+            String topicPayload = output.toString();
+            Matcher matcher = extractTopicId.matcher(topicPayload);
+            if (matcher.matches()) {
+                String topicId = matcher.group(1);
+                HttpPost replyPost = new HttpPost(discourseUrl.toString() + "/posts.json");
+                BasicHttpEntity entity = new BasicHttpEntity();
+                entity.setContentType(new BasicHeader("Content-Type","application/json"));
+                String body = format("{\"topic_id\": \"%s\",\"raw\":\"%s\"}", topicId, comment.raw);
+                entity.setContent(new ByteArrayInputStream(body.getBytes()));
+                entity.setContentLength(body.length());
+                replyPost.setEntity(entity);
+                prepareRequest(replyPost);
+                HttpResponse postResponse = httpClient.execute(replyPost);
+                return new Payload(postResponse.getFirstHeader("Content-Type").toString(), postResponse.getEntity().getContent(), postResponse.getStatusLine().getStatusCode());
+            } else {
+                throw new IllegalStateException("cannot find topic id");
+            }
+        } else {
+            return new Payload(topicAndPostsPayload.getFirstHeader("Content-Type").toString(), topicAndPostsPayload.getEntity().getContent(), topicAndPostsPayload.getStatusLine().getStatusCode());
         }
     }
 
@@ -113,6 +131,12 @@ public class DiscourseResource {
         httpUriRequest.addHeader("Api-Key", discourseApiKey);
         httpUriRequest.addHeader("Api-Username", discourseApiUser);
         httpUriRequest.addHeader("Content-Type", "application/json");
+    }
+    private HttpResponse getTopicPosts(String project, String docId, Context context) throws IOException {
+        HttpGet httpUriRequest = new HttpGet(discourseUrl.toString() + "/" + getDiscoursePath(project, docId, context));
+        prepareRequest(httpUriRequest);
+        HttpResponse response = httpClient.execute(httpUriRequest);
+        return response;
     }
 
     private String getDiscoursePath(String project, String docId, Context context) {
