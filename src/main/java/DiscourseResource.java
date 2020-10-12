@@ -62,12 +62,12 @@ public class DiscourseResource {
             // 2 if it doesn't exist create a topic with the comment
             HttpPost httpUriRequest = new HttpPost(discourseUrl.toString() + "/posts.json");
             BasicHttpEntity entity = new BasicHttpEntity();
-            entity.setContentType(new BasicHeader("Content-Type","application/json"));
+            entity.setContentType(new BasicHeader("Content-Type","application/json;charset=\"UTF-8\""));
             String json = new ObjectMapper().writeValueAsString(comment);
             entity.setContent(new ByteArrayInputStream(json.getBytes()));
             httpUriRequest.setEntity(entity);
             prepareRequest(httpUriRequest);
-            entity.setContentLength(json.length());
+            entity.setContentLength(json.getBytes().length);
             HttpResponse response = httpClient.execute(httpUriRequest);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             IOUtils.copy(response.getEntity().getContent(), output);
@@ -79,10 +79,10 @@ public class DiscourseResource {
                 String topicId = matcher.group(1);
                 HttpPut httpCustomField = new HttpPut(discourseUrl.toString() + getDiscoursePath(project, topicId, context));
                 BasicHttpEntity entityForPut = new BasicHttpEntity();
-                entityForPut.setContentType(new BasicHeader("Content-Type","application/json"));
+                entityForPut.setContentType(new BasicHeader("Content-Type","application/json;charset=\"UTF-8\""));
                 String body = format("{\"datashare_document_id\": \"%s\"}", docId);
                 entityForPut.setContent(new ByteArrayInputStream(body.getBytes()));
-                entityForPut.setContentLength(body.length());
+                entityForPut.setContentLength(body.getBytes().length);
                 httpCustomField.setEntity(entityForPut);
                 prepareRequest(httpCustomField);
                 HttpResponse putResponse = httpClient.execute(httpCustomField);
@@ -100,10 +100,10 @@ public class DiscourseResource {
                 String topicId = matcher.group(1);
                 HttpPost replyPost = new HttpPost(discourseUrl.toString() + "/posts.json");
                 BasicHttpEntity entity = new BasicHttpEntity();
-                entity.setContentType(new BasicHeader("Content-Type","application/json"));
+                entity.setContentType(new BasicHeader("Content-Type","application/json;charset=\"UTF-8\""));
                 String body = format("{\"topic_id\": \"%s\",\"raw\":\"%s\"}", topicId, comment.raw);
                 entity.setContent(new ByteArrayInputStream(body.getBytes()));
-                entity.setContentLength(body.length());
+                entity.setContentLength(body.getBytes().length);
                 replyPost.setEntity(entity);
                 prepareRequest(replyPost);
                 HttpResponse postResponse = httpClient.execute(replyPost);
