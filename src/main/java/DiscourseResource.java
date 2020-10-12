@@ -65,9 +65,9 @@ public class DiscourseResource {
             entity.setContentType(new BasicHeader("Content-Type","application/json;charset=\"UTF-8\""));
             String json = new ObjectMapper().writeValueAsString(comment);
             entity.setContent(new ByteArrayInputStream(json.getBytes()));
+            entity.setContentLength(json.getBytes().length);
             httpUriRequest.setEntity(entity);
             prepareRequest(httpUriRequest);
-            entity.setContentLength(json.getBytes().length);
             HttpResponse response = httpClient.execute(httpUriRequest);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             IOUtils.copy(response.getEntity().getContent(), output);
