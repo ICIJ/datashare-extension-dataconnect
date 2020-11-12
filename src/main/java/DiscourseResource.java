@@ -26,7 +26,7 @@ import org.apache.http.message.BasicHeader;
 import org.icij.datashare.PropertiesProvider;
 import org.icij.datashare.user.User;
 
-@Prefix("proxy")
+@Prefix("api/proxy")
 public class DiscourseResource {
     private final HttpClient httpClient;
     private final URL discourseUrl;
