@@ -58,11 +58,25 @@
 
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>datashare-api</artifactId>
-            <version>7.0.3</version>
+            <version>7.23.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.CodeStory</groupId>
+            <artifactId>fluent-http</artifactId>
+            <version>5aba37b</version>
+            <type>jar</type>
         </dependency>
 
         <!-- Logging -->
@@ -72,7 +86,25 @@
             <version>1.7.25</version>
         </dependency>
 
+        <!-- Guice -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
+
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.github.CodeStory</groupId>
+            <artifactId>fluent-rest-test</artifactId>
+            <version>0ecba04</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -89,6 +121,18 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>2.0.2-beta</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.icij.datashare</groupId>
+            <artifactId>datashare-app</artifactId>
+            <version>7.0.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
