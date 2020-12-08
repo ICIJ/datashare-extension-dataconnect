@@ -42,6 +42,16 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
     }
 
     @Test
+    public void test_put() {
+        put("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Put\"");
+    }
+
+    @Test
+    public void test_post() {
+        post("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Post\"");
+    }
+
+    @Test
     public void test_unauthorized_user() {
         get("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("baz","null").should().respond(401);
     }
@@ -56,20 +66,5 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
         DiscourseResource discourseResource = new DiscourseResource(new PropertiesProvider());
         configure(routes -> routes.add(discourseResource).filter(new BasicAuthFilter("/api","ds", DatashareUser.singleUser("foo"))));
         get("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null");
-    }
-
-//    @Test
-//    public void test_user_in_discourse_response_header() {
-//        get("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","bar").should().haveHeader("Api-Username","foo");
-//    }
-
-    @Test
-    public void test_put() {
-        put("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Put\"");
-    }
-
-    @Test
-    public void test_post() {
-        post("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Post\"");
     }
 }
