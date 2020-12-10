@@ -1,9 +1,6 @@
 package org.icij.datashare;
 
-import net.codestory.http.errors.UnauthorizedException;
 import net.codestory.http.filters.basic.BasicAuthFilter;
-import net.codestory.http.security.Users;
-import org.icij.datashare.session.LocalUserFilter;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
