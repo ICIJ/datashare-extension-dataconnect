@@ -29,7 +29,7 @@ jobs:
   release:
     docker:
       - image: circleci/openjdk:8-stretch
-    working_directory: /tmp
+    working_directory: /tmp/datashare
     
     environment:
         MAVEN_OPTS: "-Xms512m -Xmx512m -Xss10M"
