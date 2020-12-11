@@ -37,8 +37,7 @@ jobs:
       - checkout
       - run:
           name: package datashare dataconnect extension
-            command: |
-              mvn package > mvn.out
+            command: mvn package > mvn.out
       - persist_to_workspace:
           root: /tmp
           paths:
