@@ -41,7 +41,7 @@ jobs:
           name: package datashare dataconnect extension
           command: mvn package > mvn.out
       - persist_to_workspace:
-          root: /tmp
+          root: /tmp/datashare
           paths:
            - datashare-dataconnect-extension
       - run:
@@ -50,7 +50,7 @@ jobs:
             upload_url=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -d "{\"tag_name\":\"${CIRCLE_TAG}\", \"name\":\"${CIRCLE_TAG}\",\"body\":\"release ${CIRCLE_TAG}\"}" "https://api.github.com/repos/ICIJ/datashare-extension-dataconnect/releases" | jq -r '.upload_url')
             upload_url="${upload_url%\{*}"
             echo "uploading asset to release url: $upload_url"
-            curl -s -m 120 -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/java-archive" --data-binary "@/tmp/datashare-dataconnect-extension/target/datashare-dataconnect-${CIRCLE_TAG}-jar-with-dependencies.jar" "$upload_url?name=datashare-dataconnect-${CIRCLE_TAG}-jar-with-dependencies.jar&label=datashare-dataconnect-${CIRCLE_TAG}-jar-with-dependencies.jar"
+            curl -s -m 120 -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/java-archive" --data-binary "@/tmp/datashare/datashare-dataconnect-extension/target/datashare-dataconnect-${CIRCLE_TAG}-jar-with-dependencies.jar" "$upload_url?name=datashare-dataconnect-${CIRCLE_TAG}-jar-with-dependencies.jar&label=datashare-dataconnect-${CIRCLE_TAG}-jar-with-dependencies.jar"
 
 workflows:
   version: 2
