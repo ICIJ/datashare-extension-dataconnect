@@ -29,7 +29,9 @@ jobs:
   release:
     docker:
       - image: circleci/openjdk:8-stretch
-    
+
+    working_directory: /tmp/dataconnect
+
     environment:
         MAVEN_OPTS: "-Xms512m -Xmx512m -Xss10M"
 
