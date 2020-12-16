@@ -44,7 +44,7 @@ public class DiscourseResource {
             HttpGet httpUriRequest = new HttpGet(discourseUrl.toString() + "/" + url);
             prepareRequest(httpUriRequest,context.currentUser().login());
             HttpResponse response = httpClient.execute(httpUriRequest);
-            return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode()).withHeader("Api-Username",context.currentUser().login());
+            return new Payload(response.getFirstHeader("Content-Type").toString(), response.getEntity().getContent(), response.getStatusLine().getStatusCode());
         }catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException(e);

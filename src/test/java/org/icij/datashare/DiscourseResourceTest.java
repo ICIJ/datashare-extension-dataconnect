@@ -58,6 +58,11 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
         get("/api/proxy/unknown_project/my/url").withPreemptiveAuthentication("foo","null").should().respond(401);
     }
 
+    @Test
+    public void test_unknown_url() {
+        get("/api/proxy/foo-datashare/unknown/url").withPreemptiveAuthentication("foo","null").should().respond(404);
+    }
+
     @Test(expected = RuntimeException.class)
     public void test_no_api_key() throws MalformedURLException {
         DiscourseResource discourseResource = new DiscourseResource(new PropertiesProvider());
