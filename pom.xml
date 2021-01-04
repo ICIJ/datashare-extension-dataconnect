@@ -71,6 +71,11 @@
             <artifactId>datashare-api</artifactId>
             <version>7.23.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.11.09</version>
+        </dependency>
 
         <dependency>
             <groupId>com.github.CodeStory</groupId>

@@ -6,7 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
 import java.util.HashMap;
 
 public class DiscourseResourceTest extends AbstractProdWebServerTest{
@@ -25,7 +24,7 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
                     put("Test","Post");}})));
     }
     @Before
-    public void setUp() throws MalformedURLException {
+    public void setUp() {
         DiscourseResource discourseResource = new DiscourseResource(new PropertiesProvider(new HashMap<String, String>() {{
             put("discourseUrl", "http://localhost:" + discourse.port());
             put("discourseApiKey", "testApiKey");
@@ -63,10 +62,8 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
         get("/api/proxy/foo-datashare/unknown/url").withPreemptiveAuthentication("foo","null").should().respond(404);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void test_no_api_key() throws MalformedURLException {
-        DiscourseResource discourseResource = new DiscourseResource(new PropertiesProvider());
-        configure(routes -> routes.add(discourseResource).filter(new BasicAuthFilter("/api","ds", DatashareUser.singleUser("foo"))));
-        get("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null");
+    @Test(expected = IllegalStateException.class)
+    public void test_no_api_key_fails_at_constructor() {
+        new DiscourseResource(new PropertiesProvider());
     }
 }
