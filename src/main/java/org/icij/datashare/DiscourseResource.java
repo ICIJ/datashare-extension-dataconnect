@@ -39,7 +39,7 @@ public class DiscourseResource {
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }
 
-    @Put("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number=:post_number")
+    @Put("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number:=post_number")
     public Payload putMethod(final String project, final String id, final String page, final String limit, final String postNumber, Context context) throws IOException {
         checkProject(project,context);
         kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.put(discourseUrl + "/custom-fields-api/topics/" + id + buildQueryParameter(page,limit,postNumber)).
@@ -50,7 +50,7 @@ public class DiscourseResource {
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }
 
-    @Post("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number=:post_number")
+    @Post("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number:=post_number")
     public Payload postMethod(final String project, final String id, final String page, final String limit, final String postNumber, Context context) throws IOException {
         checkProject(project,context);
         kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.post(discourseUrl + "/custom-fields-api/topics/" + id + buildQueryParameter(page,limit,postNumber)).
