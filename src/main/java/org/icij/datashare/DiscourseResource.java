@@ -46,10 +46,13 @@ public class DiscourseResource {
     @Put("/:project/:url:")
     public Payload putMethod(String project, String url, Context context) throws IOException {
         checkProject(project,context);
+        // won't work with multi-values parameters
+        Map<String, Object> queryParams = context.request().query().keyValues().entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.put(discourseUrl + "/" + url).
                 header("Api-Key", discourseApiKey).
                 header("Api-Username", context.currentUser().login()).
                 header("Content-Type", "application/json").
+                queryString(queryParams).
                 body(context.request().contentAsBytes()).asBytes();
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }
@@ -57,10 +60,13 @@ public class DiscourseResource {
     @Post("/:project/:url:")
     public Payload postMethod(String project, String url, Context context) throws IOException {
         checkProject(project,context);
+        // won't work with multi-values parameters
+        Map<String, Object> queryParams = context.request().query().keyValues().entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.post(discourseUrl + "/" + url).
                 header("Api-Key", discourseApiKey).
                 header("Api-Username", context.currentUser().login()).
                 header("Content-Type", "application/json").
+                queryString(queryParams).
                 body(context.request().contentAsBytes()).asBytes();
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }

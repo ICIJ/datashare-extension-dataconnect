@@ -19,11 +19,15 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
                     put("ParameterFoo", param1);
                     put("ParameterBaz", param2);
                 }})
-                .put("/my/url",(context -> new HashMap<String,String>(){{
+                .put("/my/url?foo=:foo",((context, param1) -> new HashMap<String,String>(){{
                     put("Method","Put");
+                    put("ParameterFoo", param1);
                 }}))
-                .post("/my/url",(context -> new HashMap<String,String>(){{
-                    put("Method","Post");}})));
+                .post("/my/url?foo=:foo&baz=:baz&quuz=:quuz",((context, param1, param2, param3) -> new HashMap<String,String>(){{
+                    put("Method","Post");
+                    put("ParameterFoo", param1);
+                    put("ParameterBaz", param2);
+                    put("ParameterQuuz", param3);}})));
     }
     @Before
     public void setUp() {
@@ -51,8 +55,20 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
     }
 
     @Test
+    public void test_put_with_request_parameters() {
+        put("/api/proxy/foo-datashare/my/url?foo=bar&baz=qux").withPreemptiveAuthentication("foo","null").should().respond(200).
+                contain("\"ParameterFoo\":\"bar\"");
+    }
+
+    @Test
     public void test_post() {
         post("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Method\":\"Post\"");
+    }
+
+    @Test
+    public void test_post_with_request_parameters() {
+        post("/api/proxy/foo-datashare/my/url?foo=bar&baz=qux&quuz=thud").withPreemptiveAuthentication("foo","null").should().respond(200).
+                contain("\"ParameterFoo\":\"bar\"").contain("\"ParameterBaz\":\"qux\"").contain("\"ParameterQuuz\":\"thud\"");
     }
 
     @Test
