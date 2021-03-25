@@ -14,6 +14,9 @@ import org.icij.datashare.user.User;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toMap;
 
 @Prefix("/api/proxy")
 public class DiscourseResource {
@@ -30,10 +33,13 @@ public class DiscourseResource {
     @Get("/:project/:url:")
     public Payload getMethod(String project, String url, Context context) {
         checkProject(project,context);
+        // won't work with multi-values parameters
+        Map<String, Object> queryParams = context.request().query().keyValues().entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.get(discourseUrl + "/" + url).
                 header("Api-Key", discourseApiKey).
                 header("Api-Username", context.currentUser().login()).
-                header("Content-Type", "application/json").asBytes();
+                header("Content-Type", "application/json").
+                queryString(queryParams).asBytes();
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }
 

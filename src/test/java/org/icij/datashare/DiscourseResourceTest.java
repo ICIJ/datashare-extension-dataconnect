@@ -14,14 +14,16 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
     @BeforeClass
     public static void setUpDiscourse() {
         discourse.configure(routes -> routes
-                .get("/my/url", new HashMap<String, String>() {{
-                    put("Test", "Get");
+                .get("/my/url?foo=:foo&baz=:baz", (context, param1, param2) -> new HashMap<String, String>() {{
+                    put("Method", "Get");
+                    put("ParameterFoo", param1);
+                    put("ParameterBaz", param2);
                 }})
                 .put("/my/url",(context -> new HashMap<String,String>(){{
-                    put("Test","Put");
+                    put("Method","Put");
                 }}))
                 .post("/my/url",(context -> new HashMap<String,String>(){{
-                    put("Test","Post");}})));
+                    put("Method","Post");}})));
     }
     @Before
     public void setUp() {
@@ -34,17 +36,23 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
 
     @Test
     public void test_get() {
-        get("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Get\"");
+        get("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Method\":\"Get\"");
+    }
+
+    @Test
+    public void test_get_with_request_parameters() {
+        get("/api/proxy/foo-datashare/my/url?foo=bar&baz=qux").withPreemptiveAuthentication("foo","null").should().respond(200).
+                contain("\"ParameterFoo\":\"bar\"").contain("\"ParameterBaz\":\"qux\"");
     }
 
     @Test
     public void test_put() {
-        put("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Put\"");
+        put("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Method\":\"Put\"");
     }
 
     @Test
     public void test_post() {
-        post("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Test\":\"Post\"");
+        post("/api/proxy/foo-datashare/my/url").withPreemptiveAuthentication("foo","null").should().respond(200).contain("\"Method\":\"Post\"");
     }
 
     @Test
