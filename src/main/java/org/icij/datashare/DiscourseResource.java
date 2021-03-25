@@ -14,7 +14,6 @@ import org.icij.datashare.user.User;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.StringJoiner;
 
 @Prefix("/api/proxy")
 public class DiscourseResource {
@@ -28,21 +27,20 @@ public class DiscourseResource {
        Unirest.config().httpClient(ApacheClient.builder(HttpClientBuilder.create().build()));
     }
 
-    @Get("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number=:post_number")
-    public Payload getMethod(final String project, final String id, final String page, final String limit, final String postNumber, Context context) {
+    @Get("/:project/:url:")
+    public Payload getMethod(String project, String url, Context context) {
         checkProject(project,context);
-        kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.get(discourseUrl + "/custom-fields-api/topics/" + id + buildQueryParameter(page,limit,postNumber)).
+        kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.get(discourseUrl + "/" + url).
                 header("Api-Key", discourseApiKey).
                 header("Api-Username", context.currentUser().login()).
                 header("Content-Type", "application/json").asBytes();
-        System.out.println(buildQueryParameter(page,limit,postNumber));
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }
 
-    @Put("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number:=post_number")
-    public Payload putMethod(final String project, final String id, final String page, final String limit, final String postNumber, Context context) throws IOException {
+    @Put("/:project/:url:")
+    public Payload putMethod(String project, String url, Context context) throws IOException {
         checkProject(project,context);
-        kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.put(discourseUrl + "/custom-fields-api/topics/" + id + buildQueryParameter(page,limit,postNumber)).
+        kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.put(discourseUrl + "/" + url).
                 header("Api-Key", discourseApiKey).
                 header("Api-Username", context.currentUser().login()).
                 header("Content-Type", "application/json").
@@ -50,10 +48,10 @@ public class DiscourseResource {
         return new Payload("application/json", httpResponse.getBody(), httpResponse.getStatus());
     }
 
-    @Post("/:project/custom-fields-api/topics/:id?page=:page&limit=:limit&post_number:=post_number")
-    public Payload postMethod(final String project, final String id, final String page, final String limit, final String postNumber, Context context) throws IOException {
+    @Post("/:project/:url:")
+    public Payload postMethod(String project, String url, Context context) throws IOException {
         checkProject(project,context);
-        kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.post(discourseUrl + "/custom-fields-api/topics/" + id + buildQueryParameter(page,limit,postNumber)).
+        kong.unirest.HttpResponse<byte[]> httpResponse = Unirest.post(discourseUrl + "/" + url).
                 header("Api-Key", discourseApiKey).
                 header("Api-Username", context.currentUser().login()).
                 header("Content-Type", "application/json").
@@ -65,14 +63,6 @@ public class DiscourseResource {
         if (!((User)context.currentUser()).isGranted(project)) {
             throw new UnauthorizedException();
         }
-    }
-
-    public static String buildQueryParameter(final String page, final String limit, final String postNumber) {
-        StringJoiner query = new StringJoiner("&", "?","").setEmptyValue("");
-        if(page != null) query.add("page=" + page);
-        if(limit != null) query.add("limit=" + limit);
-        if(postNumber != null) query.add("post_number=" + postNumber);
-        return query.toString();
     }
 }
 
