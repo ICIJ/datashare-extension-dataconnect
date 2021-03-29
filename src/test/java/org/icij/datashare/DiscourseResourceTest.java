@@ -19,9 +19,9 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
                     put("ParameterFoo", param1);
                     put("ParameterBaz", param2);
                 }})
-                .put("/my/url?foo=:foo",((context, param1) -> new HashMap<String,String>(){{
+                .put("/my/url?baz=:baz",((context, param1) -> new HashMap<String,String>(){{
                     put("Method","Put");
-                    put("ParameterFoo", param1);
+                    put("ParameterBaz", param1);
                 }}))
                 .post("/my/url?foo=:foo&baz=:baz&quuz=:quuz",((context, param1, param2, param3) -> new HashMap<String,String>(){{
                     put("Method","Post");
@@ -56,8 +56,8 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
 
     @Test
     public void test_put_with_request_parameters() {
-        put("/api/proxy/foo-datashare/my/url?foo=bar&baz=qux").withPreemptiveAuthentication("foo","null").should().respond(200).
-                contain("\"ParameterFoo\":\"bar\"");
+        put("/api/proxy/foo-datashare/my/url?baz=qux").withPreemptiveAuthentication("foo","null").should().respond(200).
+                contain("\"ParameterBaz\":\"qux\"");
     }
 
     @Test
