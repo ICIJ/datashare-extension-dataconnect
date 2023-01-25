@@ -6,7 +6,7 @@
 
     <groupId>org.icij.datashare</groupId>
     <artifactId>datashare-extension-dataconnect</artifactId>
-    <version>0.0.13</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>Dataconnect datashare extension</name>
