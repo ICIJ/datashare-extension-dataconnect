@@ -31,7 +31,7 @@ public class DiscourseResourceTest extends AbstractProdWebServerTest{
     }
     @Before
     public void setUp() {
-        DiscourseResource discourseResource = new DiscourseResource(new PropertiesProvider(new HashMap<String, String>() {{
+        DiscourseResource discourseResource = new DiscourseResource(new PropertiesProvider(new HashMap<String, Object>() {{
             put("discourseUrl", "http://localhost:" + discourse.port());
             put("discourseApiKey", "testApiKey");
         }}));

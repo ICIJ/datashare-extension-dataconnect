@@ -12,7 +12,7 @@ import net.codestory.http.payload.Payload;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.icij.datashare.user.User;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
 
